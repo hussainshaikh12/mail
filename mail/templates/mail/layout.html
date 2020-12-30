@@ -1,0 +1,123 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Mail{% endblock %}</title>
+        <script src="https://cdn.ckeditor.com/ckeditor5/24.0.0/balloon/ckeditor.js"></script>
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="{% static 'mail/styles.css' %}">
+        <link rel="shortcut icon" href="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" >
+    </head>
+    <body>
+      {% if user.is_authenticated %}
+      <div class="overlay"></div>
+        <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-white pl-0">
+          <button type="button" id="sidebarCollapse" class="btn btn-link text-secondary mr-2 rounded-circle">
+            <i class="fas fa-bars"></i>
+        </button>
+            <a class="navbar-brand ml-2" href="#"><img class="gb_ua" src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png" srcset="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png 1x, https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_2x_r2.png 2x " alt="" aria-hidden="true" style="width:109px;height:40px"></a>
+            <!-- search bar -->
+            <form class="inline-form col-md-9 p-0 srch-form">
+              <div class="input-group srchbar py-1">
+                <div class="input-group-prepend border-0 pl-1">
+                  <button id="button-addon4" type="button" class="btn btn-link text-secondary srch_btn"><i class="fa fa-search"></i></button>
+                </div>
+                <input type="search" placeholder="Search mail" aria-describedby="button-addon4" class="form-control bg-transparent border-0 srch-inp" >
+              </div>
+            </form>
+
+              <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                  <div class="dropdown "> 
+                    <a class="dropdown-toggle text-light h6 text-decoration-none" href="#" id="dropdownMenuButton" data-toggle="dropdown">
+                        <span class="user-icon rounded-circle text-white"></span></a>
+  
+                    <div class="dropdown-menu dropdown-menu-right shadow border p-5 px-4 " aria-labelledby="dropdownMenuButton">
+                        <div class="text-center border-bottom p-2">
+                          <span class=" user-icon user-icon-large rounded-circle text-white">hs</span>
+                          <h5 class="username mb-0" >{{ request.user.first_name}} {{request.user.last_name }}</h5>
+                          <h6 class="text-muted mt-0 font-weight-normal">{{ request.user.email}}</h6>
+
+                        </div>
+                   
+                      <a class=" btn btn-danger border text-center shadow-sm my-2 w-100"  href="{% url 'logout' %}">Log Out</a>
+                    </div>
+    
+                  </div>
+                </li>
+              </ul>
+          
+          </nav>
+          
+          
+              <div id="sidebar">
+                  <ul class="nav nav-sidebar">
+                    <img class="sidebar-logo" src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png" srcset="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png 1x, https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_2x_r2.png 2x " alt="" aria-hidden="true" style="width:130px;height:40px">
+                    <li class="nav-item">
+                      <a class="nav-link mb-3 mr-4 py-2 " id="compose" >
+                        <img src="https://www.gstatic.com/images/icons/material/colored_icons/2x/create_32dp.png" class="plus-img mr-2"> Compose
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link py-lg-1 active" id="inbox" >
+                        <i class="fas fa-inbox pl-2 pr-3"></i>Inbox
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link py-lg-1 " id="sent">
+                        <i class="fas fa-paper-plane pl-2 pr-3"></i>Sent
+                      </a>
+                    </li>
+                    <li class="nav-item " >
+                      <a class="nav-link py-lg-1 " id="archive">
+                       <img src="https://www.gstatic.com/images/icons/material/system/1x/archive_black_20dp.png" class="archive_btn">Archived
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link py-lg-1" id="starred">
+                        <i class="fas fa-star pl-2 pr-3" style="color: initial;"></i>Starred
+                      </a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link py-lg-1 " id="trash">
+                        <i class="fas fa-trash pl-2 pr-3"></i>Trash
+                      </a>
+                    </li>
+                    
+                  </ul>
+                 </div>
+                </div>
+
+      <div class="container-fluid pr-0">
+         <div class="col-sm-12 main">
+          <div class="toast bg-dark text-white" id="myToast" style="position: absolute; bottom: 0; left: 0;  z-index: 99999;">
+            <div class="toast-header bg-dark text-white p-2">
+                <h6 class="mr-auto mt-2" id="head"></h6>
+                <button type="button" class="ml-2 close text-white" data-dismiss="toast">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+          </div>
+  {% endif %}
+              
+                {% block body %}
+                {% endblock %}
+          </div>
+          
+        </div>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+        {{ request.user.email|json_script:"user_email" }}
+        {{ request.user.first_name|json_script:"first_name" }}
+        {{ request.user.last_name|json_script:"last_name" }}
+        {% block script %}
+        {% endblock %}
+    </body>
+</html>
+
+
