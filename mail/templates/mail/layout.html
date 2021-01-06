@@ -32,19 +32,19 @@
 
               <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                  <div class="dropdown "> 
+                  <div class="dropdown dropdown-user"> 
                     <a class="dropdown-toggle text-light h6 text-decoration-none" href="#" id="dropdownMenuButton" data-toggle="dropdown">
                         <span class="user-icon rounded-circle text-white"></span></a>
   
-                    <div class="dropdown-menu dropdown-menu-right shadow border p-5 px-4 " aria-labelledby="dropdownMenuButton">
-                        <div class="text-center border-bottom p-2">
+                    <div class="dropdown-menu dropdown-menu-right shadow border p-4 pt-5" aria-labelledby="dropdownMenuButton">
+                        <div class="text-center border-bottom pb-3">
                           <span class=" user-icon user-icon-large rounded-circle text-white">hs</span>
-                          <h5 class="username mb-0" >{{ request.user.first_name}} {{request.user.last_name }}</h5>
+                          <h5 class="username mb-0 font-weight-normal" >{{ request.user.first_name}} {{request.user.last_name }}</h5>
                           <h6 class="text-muted mt-0 font-weight-normal">{{ request.user.email}}</h6>
 
                         </div>
                    
-                      <a class=" btn btn-danger border text-center shadow-sm my-2 w-100"  href="{% url 'logout' %}">Log Out</a>
+                      <a class=" btn btn-danger  text-center btn-block mt-3 "  href="{% url 'logout' %}">Sign out</a>
                     </div>
     
                   </div>
@@ -94,10 +94,10 @@
 
       <div class="container-fluid pr-0">
          <div class="col-sm-12 main">
-          <div class="toast bg-dark text-white" id="myToast" style="position: absolute; bottom: 0; left: 0;  z-index: 99999;">
-            <div class="toast-header bg-dark text-white p-2">
+          <div class="toast bg-dark text-white px-2 py-1 mx-2 hideToast" id="myToast">
+            <div class="toast-header bg-dark text-white">
                 <h6 class="mr-auto mt-2" id="head"></h6>
-                <button type="button" class="ml-2 close text-white" data-dismiss="toast">
+                <button type="button" class="ml-3 close text-white" data-dismiss="toast">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>

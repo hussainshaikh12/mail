@@ -88,16 +88,16 @@ def mailbox(request, mailbox):
         )
     elif mailbox == "archive":
         emails = Email.objects.filter(
-            user=request.user, recipients=request.user, archived=True, deleted=False,
-        )
+            user=request.user, archived=True, deleted=False,
+        ).filter( Q(sender=request.user) |Q(recipients=request.user))
     elif mailbox == "starred":
         emails = Email.objects.filter(
             user=request.user, starred=True, deleted=False,
         ).filter( Q(sender=request.user) |Q(recipients=request.user))
     elif mailbox == "trash":
         emails = Email.objects.filter(
-            user=request.user, recipients=request.user, deleted=True
-        )
+            user=request.user, deleted=True
+        ).filter( Q(sender=request.user) |Q(recipients=request.user))
     
     else:
         return JsonResponse({"error": "Invalid mailbox."}, status=400)
@@ -135,10 +135,13 @@ def email(request, email_id):
         email.save()
         return HttpResponse(status=204)
 
+    elif request.method == "DELETE":
+        email.delete()
+        return HttpResponse(status=204)
     # Email must be via GET or PUT
     else:
         return JsonResponse({
-            "error": "GET or PUT request required."
+            "error": "GET or PUT or DELETE request required."
         }, status=400)
 
 @csrf_exempt
