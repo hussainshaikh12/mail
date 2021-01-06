@@ -9,19 +9,19 @@ document.addEventListener("DOMContentLoaded", function () {
   history.replaceState({ mailbox: "inbox" }, "Default state", "#inbox"); //default state
   window.addEventListener("popstate", (e) => {
     console.log(e.state);
-    if (e.state.mailbox) {
+    if(e.state.query){
+      load_mailbox("search" ,e.state.query);
+    }
+    else if(e.state.email) {
+      let doc = new DOMParser().parseFromString(e.state.element, 'text/html');
+      veiw_email(e.state.email,doc, e.state.mail);
+    }
+    else if(e.state.mailbox !== null) {
       if (e.state.mailbox !== "compose") {
         load_mailbox(e.state.mailbox);
       } else {
         compose_email();
       }
-    }
-    if(e.state.query){
-      load_mailbox("search",e.state.query);
-    }
-    if (e.state.email) {
-      let doc = new DOMParser().parseFromString(e.state.element, 'text/html');
-      veiw_email(e.state.email,doc, e.state.mail);
     }
     // if(e.state.){
     //   load_mailbox(e.state.mailbox);
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if(document.querySelector("#emails-view").style.display !== "none"){
         maildiv = document.querySelector(".mailbox_head").textContent;
         if( maildiv.toLowerCase() !== link.id){
-          console.log(maildiv)
+          // console.log(maildiv)
           history.pushState({ mailbox: link.id }, "", `./#${link.id}`);
           if(link.id !== "compose") load_mailbox(link.id);
         }
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
   load_mailbox("inbox");
 });
 
-function compose_email(email = null) {
+function compose_email(email = null, status="") {
   tog_menu(); // toggle sidebar when on mobile devices
   if($(window).width() <= 768){
     document.querySelector('.navbar').style.display = "flex";
@@ -126,9 +126,19 @@ function compose_email(email = null) {
       .then((editor) => {
         // console.log( editor );
         editor.setData("");
-        if (email !== null && email.sender) {
+        if (email !== null && status === "reply") {
           editor.setData(
             `<p> On ${email.timestamp} ${email.sender} wrote: </p> ${email.body}`
+          );
+        }
+        else if (email !== null && status === "forward") {
+          editor.setData(
+            `<p>---------- Forwarded message ---------</p>
+            <p>From: <strong>${email.username}</strong> <span class="detail-small d-none d-lg-inline"><span><</span>${email.sender}></span> </p>
+            <p>Date: ${email.timestamp}</p>
+            <p>Subject: ${email.subject}</p> 
+            <p>To: ${email.recipients}</p> 
+            ${email.body}`
           );
         }
         document.querySelector("#compose").addEventListener("click", () => {
@@ -159,7 +169,7 @@ function compose_email(email = null) {
   document.querySelector("#compose-subject").value = "";
   document.querySelector("#compose-body").innerHTML = "";
 
-  if (email !== null && email.sender) {
+  if (email !== null && status === "reply") {
     document.querySelector("#title").textContent = "Reply";
     document.querySelector("#compose-recipients").value = email.sender;
     document.querySelector("#compose-subject").value = email.subject.startsWith(
@@ -167,6 +177,18 @@ function compose_email(email = null) {
     )
       ? email.subject
       : `Re: ${email.subject}`;
+    //
+    // document.querySelector("#compose-body").innerHTML = `<p> On ${email.timestamp} ${email.sender} wrote: </p> ${email.body}`;
+  }
+
+  else if (email !== null && status === "forward") {
+    document.querySelector("#title").textContent = "Forward";
+    document.querySelector("#compose-recipients").focus();
+    document.querySelector("#compose-subject").value = email.subject.startsWith(
+      "Fwd:"
+    )
+      ? email.subject
+      : `Fwd: ${email.subject}`;
     //
     // document.querySelector("#compose-body").innerHTML = `<p> On ${email.timestamp} ${email.sender} wrote: </p> ${email.body}`;
   }
@@ -216,6 +238,7 @@ function load_mailbox(mailbox, query = "") {
   document.querySelector("#compose-view").style.display = "none";
 
   // Show the mailbox name
+  console.log(mailbox);
   document.querySelector(
     "#emails-view"
   ).innerHTML = `<h4 class="mailbox_head py-2 pl-3 m-0 mx-1">${
@@ -229,13 +252,14 @@ function load_mailbox(mailbox, query = "") {
     .then((response) => response.json())
     .then((emails) => {
       // Print emails
-      // console.log(emails);
+      console.log(emails);
       if (emails.error) {
         document.querySelector(
           "#emails-view"
         ).innerHTML += `<h5 class="pl-3 pt-2">${emails.error} for "${query}"</h5>`;
       }
-      // ... do something else with emails ...
+      else if(emails.length > 0){
+        // ... do something else with emails ...
       emails.forEach((email) => {
         const element = document.createElement("div");
         element.classList.add(
@@ -268,10 +292,9 @@ function load_mailbox(mailbox, query = "") {
             sender = `To: ${sendto}`;
           }
 
-          let archive_stat = "Archive";
-          if (email.archived) {
-            archive_stat = "Unarchive";
-          }
+          let archive_stat = email.archived ? "Unarchive" : "Archive";
+          let star_stat = email.starred ? "Starred" : "Not starred"
+          let del_stat = email.deleted ? "Restore" : "Delete"
 
           let mark_read_stat = "Mark as Unread";
           if (!email.read) {
@@ -281,15 +304,18 @@ function load_mailbox(mailbox, query = "") {
             element.classList.add("light");
             element.classList.remove("unread");
           }
+
           let archive_slash = email.archived
             ? `<i class="fas fa-slash"></i>`
             : "";
           let mark_class = email.read ? "fa-envelope-open" : "fa-envelope";
           let star_class = email.starred ? "fas" : "far";
-
+          let del_class = email.deleted ? "fa-recycle" : "fa-trash";
+          let del_forever = mailbox === "trash" ?`<li class="btn-item del_forever" data-toggle="tooltip" data-placement="bottom" title="Delete forever"><i class="fas fa-trash"></i></li>   ` :"";
+          let ext_btn = mailbox === "trash" ? "ext_btn": "";
           return `
             ${user_avatar}
-            <div class="star-wrapper"  data-toggle="tooltip" data-placement="bottom" title="Not Starred">
+            <div class="star-wrapper"  data-toggle="tooltip" data-placement="bottom" title="${star_stat}">
               <span class="star"> <i class="${star_class} fa-star"></i> </span>
             </div>
             <div class="sender">${sender}</div>
@@ -301,13 +327,14 @@ function load_mailbox(mailbox, query = "") {
               /<(.|\n)*?>/gi,
               " "
             )}</span></div>
-            <div class="timestamp ">
+            <div class="timestamp ${ext_btn}">
             <span id="time">${readable_date(email.timestamp)}</span>
             <ul class="btn-list">
-                <li class="btn-item archive" id="archive" data-toggle="tooltip" data-placement="bottom" title=${archive_stat} >${archive_slash}</li>
+                <li class="btn-item archive" id="archive" data-toggle="tooltip" data-placement="bottom" title="${archive_stat}" >${archive_slash}</li>
                 <li class="btn-item mark-read" data-toggle="tooltip" data-placement="bottom" title="${mark_read_stat}"><i class="fas ${mark_class}"></i></li>
-                <li class="btn-item delete" data-toggle="tooltip" data-placement="bottom" title="Delete"><i class="fas fa-trash"></i></li>   
-             </ul>
+                <li class="btn-item delete" data-toggle="tooltip" data-placement="bottom" title="${del_stat}"><i class="fas ${del_class}"></i></li>   
+                ${del_forever}
+            </ul>
             </div>
             `;
         })()}`;
@@ -321,14 +348,14 @@ function load_mailbox(mailbox, query = "") {
               }),
             });
             history.pushState(
-              { email: email ,
+              { email: email.id ,
                 element : element.innerHTML,
                 mail: mailbox },
               "",
               `#${mailbox}/${email.id}`
             );
-            console.log(email.id);
-            veiw_email(email, element, mailbox);
+            // console.log(email.id);
+            veiw_email(email.id, element, mailbox);
 
             e.stopImmediatePropagation();
           },
@@ -339,7 +366,16 @@ function load_mailbox(mailbox, query = "") {
         mark_archive(email, element, mailbox);
         mark_star(email, element, mailbox);
         mark_del(email, element, mailbox);
-
+        if(mailbox === "trash"){
+          element.querySelector(".del_forever").addEventListener("click", (e)=>{
+            fetch(`/emails/${email.id}`, {
+              method: "DELETE",
+            });
+            custm_alert("Conversation deleted forever")
+            hide_element(element);
+            e.stopImmediatePropagation();
+          })
+        }
         if ($(window).width() >= 768) {
           element.addEventListener(
             "mouseover",
@@ -370,6 +406,20 @@ function load_mailbox(mailbox, query = "") {
         }
         document.querySelector("#emails-view").append(element);
       });
+      }
+      else{
+        const empty = document.createElement("div");
+        empty.classList.add(
+          // "row",
+          "d-flex",
+          "flex-column",
+          "mt-5",
+        );
+        empty.innerHTML = `
+        <div class="text-center empty_icon"><i class="far fa-folder-open"></i></div>
+        <div class="text-center empty_text">Nothing in ${mailbox}</div>`
+        document.querySelector("#emails-view").append(empty);
+    }
       $('[data-toggle="tooltip"]').tooltip();
     })
     .catch((error) => {
@@ -377,29 +427,18 @@ function load_mailbox(mailbox, query = "") {
     });
 }
 
-function custm_alert(val) {
-  toastHead = document.querySelector("#head");
-  toast = document.querySelector("#myToast");
-  if (val.error) {
-    toastHead.innerHTML = val.error;
-  } else if (val.message) {
-    load_mailbox("sent");
-    toastHead.innerHTML = val.message;
-  }
-  $("#myToast").toast({ delay: 4000 });
-  $("#myToast").toast("show");
-}
 function mark_archive(email, element, mailbox) {
   element.querySelector("#archive").addEventListener(
     "click",
     (e) => {
-      if (mailbox === "inbox") {
+      if (mailbox !== "archive" && mailbox !== "trash" ) {
         fetch(`/emails/${email.id}`, {
           method: "PUT",
           body: JSON.stringify({
             archived: true,
           }),
         });
+        custm_alert("Conversation archived")
         // element.querySelector(":scope > #archive").classList.remove('archive')
         // element.querySelector(":scope > #archive").classList.add('unarchive')
       } else if (mailbox === "archive") {
@@ -409,9 +448,12 @@ function mark_archive(email, element, mailbox) {
             archived: false,
           }),
         });
+        custm_alert("Conversation moved to inbox")
       }
       $(element.querySelector("#archive")).tooltip("hide");
-      hide_element(element);
+      if(mailbox !== "trash"){
+        hide_element(element);
+      }
       e.stopImmediatePropagation();
     },
     false
@@ -471,10 +513,10 @@ function mark_star(email, element, mailbox) {
       star.classList.remove("fas"),
         star.classList.add("far"),
         $(element.querySelector(".star-wrapper"))
-          .attr("data-original-title", "not starred")
+          .attr("data-original-title", "Not starred")
           .tooltip("show");
 
-      fetch(`/emails/${email}`, {
+      fetch(`/emails/${email.id}`, {
         method: "PUT",
         body: JSON.stringify({
           starred: false,
@@ -487,7 +529,7 @@ function mark_star(email, element, mailbox) {
     } else {
       star.classList.add("fas"),
         $(element.querySelector(".star-wrapper"))
-          .attr("data-original-title", "starred")
+          .attr("data-original-title", "Starred")
           .tooltip("show");
       fetch(`/emails/${email.id}`, {
         method: "PUT",
@@ -503,34 +545,49 @@ function mark_star(email, element, mailbox) {
 }
 
 function mark_del(email, element, mailbox) {
-  element.querySelector(".delete").addEventListener("click", (e) => {
-    fetch(`/emails/${email.id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        deleted: true,
-      }),
+      element.querySelector(".delete").addEventListener("click", (e) => {
+        if(mailbox !== "trash"){
+          fetch(`/emails/${email.id}`, {
+            method: "PUT",
+            body: JSON.stringify({
+              deleted: true,
+            }),
+          });
+          $(element.querySelector(".delete")).tooltip("hide");
+          custm_alert("Conversation moved to trash")
+        }
+      else{
+        fetch(`/emails/${email.id}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            deleted: false,
+          }),
+        });
+        $(element.querySelector(".delete")).tooltip("hide");
+        custm_alert("Conversation restored from trash")
+      }
+      hide_element(element);
+      e.stopImmediatePropagation();
     });
-    $(element.querySelector(".delete")).tooltip("hide");
-    hide_element(element);
-
-    e.stopImmediatePropagation();
-  });
 }
 
-function veiw_email(email, element, mailbox) {
+function veiw_email(email_id, element, mailbox) {
 
   document.querySelector('.navbar').style.display = $(window).width() <= 768 ? "none" :"flex";
   document.querySelector("#emails-view").style.display = "none";
-  document.querySelector("#check-email").style.display = "block";
   document.querySelector("#compose-view").style.display = "none";
   // console.log(id);
-  // fetch(`/emails/${email.id}`)
-  //   .then((response) => response.json())
-  //   .then((email) => {
-      // Print email
-      // console.log(email);
-  let read = element.querySelector(".mark-read > i");
-  console.log(read)
+  fetch(`/emails/${email_id}`)
+    .then((response) => response.json())
+    .then((email) => {
+      if(email.error){
+        custm_alert(email.error)
+        load_mailbox(mailbox)
+      }
+      else{
+        document.querySelector("#check-email").style.display = "block";
+        let read = element.querySelector(".mark-read > i");
+  // console.log(read)
   if(read.classList.contains("fa-envelope")){
     read.classList.remove("fa-envelope"),
       read.classList.add("fa-envelope-open"),
@@ -545,7 +602,14 @@ function veiw_email(email, element, mailbox) {
                        email.sender
                      )}">${sender.charAt(0).toUpperCase()}</span>
                     </div>`;
-      
+  let sendto = email.recipients.slice(0);
+  console.log(email.recipients)
+  let subject =  email.subject.length > 0 ? email.subject : "(no subject)"
+  if (sendto.includes(sender)) {
+    let index = sendto.indexOf(email.username);
+    sendto[index] = "me";
+  }
+  console.log(email.recipients)
   let btn_list = element.querySelector(".btn-list").innerHTML 
   // console.log(btn_list)
       document.querySelector("#check-email").innerHTML = `
@@ -559,32 +623,62 @@ function veiw_email(email, element, mailbox) {
         
           <div class="row mx-auto">
             <h4 class="sing-sub">${
-              email.subject.length > 0 ? email.subject : "(no subject)"
+             subject
             }</h4>
           </div>
 
           <div class="sing-detail">
-            <div class="pt-2">
-            ${user_avatar}
-              <p class="d-inline sing-username"><strong>${sender}</strong>  <span class="detail-small d-none d-lg-inline"><span><</span>${email.sender}></span> </p>
+          ${user_avatar}
+            <div class="sing-username-wrapper">
+            	<div class="sing-username">
+            	  <p class="d-inline-block text-truncate p-0 m-0"><strong>${sender}</strong>  <span class="detail-small d-none d-lg-inline"><span><</span>${email.sender}></span> </p>
+            	</div>
+            
+            	<div class="dropdown">
+            	 <a class="dropdown-toggle text-muted h6 text-decoration-none detail-small tome" href="#" id="dropdownMenuButton" data-toggle="dropdown" data-display="static" >to ${sendto}</a>
+                <div class="dropdown-menu dropdown-menu-right dropdown-menu-md-left shadow dropdown-tome" aria-labelledby="dropdownMenu2" style="top: 1rem;">
+                <table class="table table-borderless my-2 detail-small">
+                  <tbody>
+                    <tr class="py-0">
+                      <td class="text-muted text-right">From:</td>
+                      <td><span class="font-weight-bold">${email.username}</span> . ${email.sender}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted text-right">To:</td>
+                      <td>${email.recipients}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted text-right">Date:</td>
+                      <td>${email.timestamp}</td>
+                    </tr>
+                    <tr>
+                      <td class="text-muted text-right">Subject:</td>
+                      <td>${subject}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                </div>
+              </div>
             </div>
  
-            <div class="sing-timestamp  pt-2">
+            <div class="sing-timestamp">
               <p class="detail-small d-inline time">${$(window).width() <= 768 ? readable_date(email.timestamp) : email.timestamp}</p>
             </div>
          
-            <div class="timestamp-icons pt-2 pl-2">
-              <span class="st" data-toggle="tooltip" data-placement="bottom" title=${star_title} style="cursor:pointer"> <i class="${star_class} fa-star"></i> </span>
-              <span data-toggle="tooltip" data-placement="bottom" title="Reply"><i class="fas fa-reply pl-3" id="reply"></i></span>
+            <div class="timestamp-icons pl-2">
+              <span class="st" data-toggle="tooltip" data-placement="bottom" title="${star_title}" style="cursor:pointer"> <i class="${star_class} fa-star"></i> </span>
+              <span data-toggle="tooltip" data-placement="bottom" title="Reply"><i class="fas fa-reply pl-3 replybtn" ></i></span>
           </div>
           </div>
           
           <div class="row-fluid sing-body my-3">
             <div class="p-0">${email.body}</div>
+            
           </div>
           
           <div class="row mx-auto reply-btn">
-            <button class="btn btn-light border my-3 mb-4 px-4" id="reply" ><i class="fas fa-reply pr-2"></i>Reply</button>
+            <button class="btn btn-light border my-3 mb-4 px-4 replybtn" id="reply" ><i class="fas fa-reply pr-3"></i>Reply</button>
+            <button class="btn btn-light border my-3 mb-4 px-4 ml-3" id="forward" ><i class="fas fa-arrow-right pr-3"></i>Forward</button>
           </div>
           
         </div> 
@@ -620,10 +714,10 @@ function veiw_email(email, element, mailbox) {
         let url = window.location.hash
         if(url.startsWith("#search")){
           let [,query] = url.split('/')
-          setTimeout(() => { load_mailbox("search",query)   }, 100);
+          setTimeout(() => { load_mailbox("search",query)   }, 300);
         }
         else{
-          setTimeout(() => { load_mailbox(mailbox)   }, 100);
+          setTimeout(() => { load_mailbox(mailbox)   }, 300);
         }
         })
       })
@@ -658,13 +752,46 @@ function veiw_email(email, element, mailbox) {
     
         // e.stopImmediatePropagation();
       });
-      document.querySelector("#reply").addEventListener("click", (e) => {
-        compose_email(email);
-        e.stopImmediatePropagation();
-      });
+      let replybtns =  document.querySelectorAll(".replybtn")
+      replybtns.forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          compose_email(email, "reply");
+          e.stopImmediatePropagation();
+        });
+      })
+      document.querySelector("#forward").addEventListener("click", (e)=>{
+        compose_email(email, "forward");
+          e.stopImmediatePropagation();
+      })
       $('[data-toggle="tooltip"]').tooltip();
-    //   // ... do something else with email ...
+ 
+      }
+    });
+     //   // ... do something else with email ...
     // });
+}
+
+
+function custm_alert(val) {
+  // $("#myToast").toast("hide");
+  toastHead = document.querySelector("#head");
+  toast = document.querySelector("#myToast");
+  toast.classList.remove('hideToast')
+  if (val.error) {
+    toastHead.innerHTML = val.error;
+  } else if (val.message) {
+    load_mailbox("sent");
+    toastHead.innerHTML = val.message;
+  }
+  else{
+    toastHead.innerHTML = val;
+  }
+  $("#myToast").toast({ delay: 4000 });
+  $("#myToast").toast("show");
+  $('#myToast').on('hidden.bs.toast', function () {
+    toast.classList.add('hideToast')
+  })
+  // $("#myToast").toast('dispose');
 }
 
 function readable_date(mail_date) {
@@ -676,7 +803,7 @@ function readable_date(mail_date) {
     }
     return mail_day;
   } else {
-    return mail_year;
+    return `${mail_day}/${mail_year}`;
   }
 }
 function tog_menu() {

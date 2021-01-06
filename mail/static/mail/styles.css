@@ -14,12 +14,21 @@ html,body{
     color: #34353a;
     font-size: 15px;
 }
+html {
+    overflow:   scroll;
+  }
+  ::-webkit-scrollbar {
+      width: 0px;
+      background: transparent; /* make scrollbar transparent */
+  }
 img {
     max-width: 100%;
     height: auto !important;
 }
-
-.ck.ck-reset_all{
+.media{
+    display: block;
+}
+#check-email svg{
     display: none;
 }
 
@@ -75,6 +84,7 @@ img {
 #submit-btn{
     margin-top: 16.5rem;
     margin-bottom: 1rem;
+    padding: .5rem 2rem;
 }
 
 .ck-focused{
@@ -139,18 +149,19 @@ font-size: 1.6rem;
 }
 .user-icon-large{
     font-size: 38px;
-    padding: 25px 33px;
+    padding: 1rem 1.7rem;
+    margin: 10px 5rem;
 }
 .username{
     white-space: nowrap;
     overflow: hidden !important;
     text-overflow: ellipsis;
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 .main{
     padding-left: 234px;  
     margin-top: 65px;
-    height: calc(100vh-65px);
+    height: calc(100vh - 65px);
     transition: all 0.3s;
 }
 .spread{
@@ -223,7 +234,8 @@ textarea {
     flex: 0 1 150px;
 }
 .timestamp{
-    margin: 0 0 0 auto ;
+    /* margin: 0 0 0 auto ; */
+    margin-left: 2rem;
     text-align: right;
     white-space: nowrap;
 }
@@ -311,7 +323,7 @@ width: 25px;
     opacity: 0.54;
 }
 
-.mark-read,.delete{
+.mark-read,.delete,.del_forever {
     font-size: 1.1rem;
     padding-right: .75rem;
     padding-top: .5rem;
@@ -362,9 +374,15 @@ width: 25px;
     display: flex;
     margin-top: 1rem;
     margin-bottom: 2rem;
-    flex: 1 1 150px;
+    flex: 1 1 auto;
+}
+.sing-username-wrapper{
+    display: flex;
+    flex-direction: column;
 }
 .sing-username{
+    display: flex;
+    flex-direction: column;
     padding-right: 10px;
 }
 .sing-username, .sing-timestamp{
@@ -397,7 +415,6 @@ width: 25px;
     padding: 2px 2px;
     font-size: 24px;
     font-weight: normal;
-    bottom: -.7rem;
 }
 .sing-body,.reply-btn{
     padding-left: 4rem;
@@ -406,6 +423,40 @@ width: 25px;
     cursor: pointer;
 }
 
+.empty_icon{
+    font-size: 9rem;
+    color: #d93025;
+    padding-left: 1rem;
+}
+
+.empty_text{
+    font-size: 1.2rem;
+    color:  #6c757d;
+}
+
+#myToast{
+    width: 400px;
+    position: fixed; 
+    bottom: 0; 
+    left: 2%;  
+    z-index: 9999;
+}
+.hideToast{
+ display: none;
+}
+.dropdown-tome{
+    width: 20rem;
+}
+.table td{
+    padding-top: 1px ;
+    padding-bottom: 1px ;
+}
+.tome{
+    position: absolute;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: 10rem;
+}
 /* css hover style */
 @media (hover: hover) and (pointer: fine) {
     .nav-link:hover{
@@ -421,7 +472,10 @@ width: 25px;
         opacity: 1;
     }
     .single-mail:hover .timestamp{
-        margin-left: 28px;
+        margin-left: 3.5rem;
+    }
+    .single-mail:hover .ext_btn{
+        margin-left: 5rem;
     }
     .btn-item:hover, .star:hover::after{
         opacity: 1;
@@ -464,9 +518,11 @@ width: 25px;
     }
     .light{
         background: none;
+        color:  #6c757d;
     }
     .timestamp{
         flex: 0 1 auto;
+        margin-left: auto;
     }
 
     .sender{
@@ -548,7 +604,7 @@ width: 25px;
         left: 20px;
         z-index: 9999;
     }
-    .dropdown{
+    .dropdown-user{
         position: absolute;
         top: 19px;
         right: 20px;
@@ -584,6 +640,12 @@ width: 25px;
     #time{
         font-size: 12px;
     }
+    .sing-icon-wrapper {
+        padding-right: 3.5rem;
+    }
+    .sing-username{
+        
+    }
     .sing-timestamp{
         margin-left: 0px;
     }
@@ -617,6 +679,14 @@ width: 25px;
         font-weight: normal;
         font-size: 14px;
         letter-spacing: .1rem;
+    }
+    #myToast{
+    width: 80%;
+    left: 3%;
+    }
+    .dropdown-tome{
+    width: 15rem;
+    left: -3rem;
     }
 }
 
