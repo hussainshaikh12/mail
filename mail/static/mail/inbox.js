@@ -8,7 +8,7 @@ const user_lastn = JSON.parse(document.getElementById("last_name").textContent);
 document.addEventListener("DOMContentLoaded", function () {
   history.replaceState({ mailbox: "inbox" }, "Default state", "#inbox"); //default state
   window.addEventListener("popstate", (e) => {
-    console.log(e.state);
+    // console.log(e.state);
     if(e.state.query){
       load_mailbox("search" ,e.state.query);
     }
@@ -238,7 +238,7 @@ function load_mailbox(mailbox, query = "") {
   document.querySelector("#compose-view").style.display = "none";
 
   // Show the mailbox name
-  console.log(mailbox);
+  // console.log(mailbox);
   document.querySelector(
     "#emails-view"
   ).innerHTML = `<h4 class="mailbox_head py-2 pl-3 m-0 mx-1">${
@@ -252,7 +252,7 @@ function load_mailbox(mailbox, query = "") {
     .then((response) => response.json())
     .then((emails) => {
       // Print emails
-      console.log(emails);
+      // console.log(emails);
       if (emails.error) {
         document.querySelector(
           "#emails-view"
@@ -603,13 +603,13 @@ function veiw_email(email_id, element, mailbox) {
                      )}">${sender.charAt(0).toUpperCase()}</span>
                     </div>`;
   let sendto = email.recipients.slice(0);
-  console.log(email.recipients)
+  // console.log(email.recipients)
   let subject =  email.subject.length > 0 ? email.subject : "(no subject)"
   if (sendto.includes(sender)) {
     let index = sendto.indexOf(email.username);
     sendto[index] = "me";
   }
-  console.log(email.recipients)
+  // console.log(email.recipients)
   let btn_list = element.querySelector(".btn-list").innerHTML 
   // console.log(btn_list)
       document.querySelector("#check-email").innerHTML = `
@@ -709,6 +709,10 @@ function veiw_email(email_id, element, mailbox) {
         
         else if(btn_item.classList.contains("delete")){
           $(element.querySelector(".delete")).click()
+          // $(element.querySelector(".mark-read")).tooltip('hide')
+        }
+        else if(btn_item.classList.contains("del_forever")){
+          $(element.querySelector(".del_forever")).click()
           // $(element.querySelector(".mark-read")).tooltip('hide')
         }
         let url = window.location.hash

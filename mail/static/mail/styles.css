@@ -274,7 +274,7 @@ textarea {
     padding-left: .8rem;
     padding-top: .8rem;
 }
-.view-mail-btn-list .delete,.view-mail-btn-list .mark-read{
+.view-mail-btn-list .delete,.view-mail-btn-list .mark-read , .view-mail-btn-list .del_forever{
     padding-left: .85rem;
     padding-top: .5rem;
 }
