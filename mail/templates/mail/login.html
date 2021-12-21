@@ -3,11 +3,11 @@
 {% block body %}
 
     <div class="col col-sm-8 col-md-7 col-lg-4 mx-auto ">
-        <div class="card  shadow mt-5 p-3 m-2">
+        <div class="card border rounded-lg mt-5 p-5 m-2 shadow-sm">
         <div class="card-body text-center">
            <img src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/logo_gmail_lockup_default_1x_r2.png"  aria-hidden="true" style="width:109px;height:40px">
-            <h5 class="card-title mb-4 mt-2 pb-2 font-weight-normal">Sign in</h5>
-    
+            <h3 class="card-title mt-3 mb-0 pb-0 font-weight-normal">Sign in</h3>
+            <p class="mb-4 ">to continue to Gmail</p>
             {% if message %}
             <div>{{ message }}</div>
             {% endif %}
@@ -15,12 +15,12 @@
             <form action="{% url 'login' %}" method="post" >
             {% csrf_token %}
             <div class="form-group border-bottom pr-2">
-                <input autofocus class="form-control" type="text" name="email" placeholder="Username">
+                <input autofocus class="form-control" type="text" name="email" placeholder="Username" value="john@gmail.com">
             </div>
             <div class="form-group border-bottom">
-                <input class="form-control" type="password" name="password" placeholder="Password">
+                <input class="form-control" type="password" name="password" placeholder="Password" value="1">
             </div>
-            <input class="btn btn-primary col-md-6 mb-2" type="submit" value="Login">
+            <input class="btn btn-primary col-md-6 my-3" type="submit" value="Login">
             </form>
     
             Don't have an account? <a href="{% url 'register' %}">Register here.</a>
