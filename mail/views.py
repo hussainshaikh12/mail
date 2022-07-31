@@ -152,7 +152,12 @@ def search(request, query):
         qset1 =  reduce(operator.__or__, [Q(sender__email__icontains=query) | Q(sender__first_name__icontains=query) | Q(sender__last_name__icontains=query)  | Q(subject__icontains=query) | Q(body__icontains=query) for query in queries])
         results = Email.objects.filter(user=request.user).filter(qset1).distinct()
     else:
-        results = Email.objects.filter(user=request.user).filter(Q(sender__email__icontains=query) | Q(sender__first_name__icontains=query) | Q(sender__last_name__icontains=query)  | Q(subject__icontains=query) | Q(body__icontains=query)).distinct()
+        results = Email.objects.filter(user=request.user)\
+            .filter(Q(sender__email__icontains=query) 
+            | Q(sender__first_name__icontains=query) 
+            | Q(sender__last_name__icontains=query) 
+            | Q(subject__icontains=query) 
+            | Q(body__icontains=query)).distinct()
     if results:
         emails = results.order_by("-timestamp").all().distinct()
         return JsonResponse([email.serialize() for email in emails], safe=False)

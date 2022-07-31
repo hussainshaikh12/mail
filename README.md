@@ -4,15 +4,8 @@
 
 # Gmail Clone
 
-  <div align="center" style= 'display:flex; justify-content:center;
-  gap: 1rem;
-  '>
+  [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/embed/ZYKOReUFKtE)  [![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)](https://cs50gmail.herokuapp.com)
 
-  [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/embed/ZYKOReUFKtE)
-    
-  [![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)](https://cs50gmail.herokuapp.com)
-
-  </div>
 
 
 </div>
@@ -49,9 +42,9 @@ A single-page-app email client that makes API calls to send and receive emails w
 
 - **Send Mail** - User is able to send mails passing in values for recipients, subject, and body.
 - **Mailbox** -  The appropriate mailbox is loaded on visiting the Inbox, Sent, Archive, Starred or Trash mailbox.
-- **View Email** - When a user clicks on an email, the user should be taken to a view where they see the content of that email.
+- **View Email** - When a user clicks on an email, the user is taken to a view where they see the content of that email.
 - **Archive and Unarchive** -  Users are able to archive and unarchive emails.
-- **Reply** - 
+- **Reply** - Users are able to reply to emails received and even forward them.
 - **Search** - Users can search emails based on any keyword present in their email description or usernames.
 - **History Api** - Enables page navigation and routing in pure vanilla JavaScript through powerful set of methods for SPAs. 
 - **CkEditor** - Povides user with a WYSIWYG to write custom with styling and images emails. 
@@ -82,51 +75,95 @@ A single-page-app email client that makes API calls to send and receive emails w
 
 ### What I learned
 
-Use this section to recap over some of your major learnings while working through this project. Writing these out and providing code samples of areas you want to highlight is a great way to reinforce your own knowledge.
+I am using this section to recap over some of my major learnings while working through this project. I feel writing these out and providing code samples of areas I want to highlight is a great way to reinforce my own knowledge.
 
-To see how you can add code snippets, see below:
+- **Q Objects**
+  To execute more complex queries with django ORM (for example, queries with OR statements) you need to use Q objects. I used them at multiple places in my views and they make up my simple search feature work.
+  
+  ```python
+  # My simple search query 
+  # Here Q with | works similar to LIKE OR query of SQL
+  #Note: __contains __(case-sensitive) and icontains (case-insensitive)
+  results = Email.objects.filter(user=request.user)\
+    .filter(Q(sender__email__icontains=query)
+    | Q(sender__first_name__icontains=query)
+    | Q(sender__last_name__icontains=query)
+    | Q(subject__icontains=query)
+    | Q(body__icontains=query)).distinct()
+  ```
+- **JsonResponse**
+  JsonResponse is an HttpResponse subclass that helps to create a JSON-encoded response. Based on my usecase it enabled me to make a simple API with a serializer inside my model that returns the data in required JSON format.
+  ```python
+  # views.py
+  def mailbox(request, mailbox):
+    #skipped some code here
+    return JsonResponse([email.serialize() for email in emails], safe=False)
 
-```html
-<h1>Some HTML code I'm proud of</h1>
-```
-```css
-.proud-of-this-css {
-  color: papayawhip;
-}
-```
-```js
-const proudOfThisFunc = () => {
-  console.log('🎉')
-}
-```
+  #models.py
+  class Email(models.Model):
+    #skipped some code here
+    def serialize(self):
+        return {
+            "id": self.id,
+            "username": self.sender.first_name +" "+self.sender.last_name,
+            "sender": self.sender.email,
+            "recipients": [user.first_name +" "+user.last_name for user in self.recipients.all()],
+            "subject": self.subject,
+            "body": self.body,
+            "timestamp": self.timestamp.strftime("%b %d-%Y-%H:%M %p" ),
+            "read": self.read,
+            "archived": self.archived,
+            "starred": self.starred,
+            "deleted": self.deleted,
+        }
+  ```
+- **History Api**
+  Single page applications do not re-render pages rather they make changes to the page asynchronously. While this feature looks appealing to the user the state of the website is no longer saved by the browser as it is done with multi-page websites. So inorder to make the back and forward history buttons of the browser the history API is used.
 
-If you want more help with writing markdown, we'd recommend checking out [The Markdown Guide](https://www.markdownguide.org/) to learn more.
+  To use the browser’s history functionality, you begin by telling the browser to remember your initial state. This requires the replaceState method
+  ```js
+  // Initial State
+  // To use the browser’s history functionality, 
+  // you begin by telling the browser to remember your initial state.
+  history.replaceState({ mailbox: "inbox" }, "Default state", "#inbox"); 
 
-**Note: Delete this note and the content within this section and replace with your own learnings.**
+  //Behind the scenes, The History Api uses a Stack data structure.
+
+  //Pushstate pushes states to the stack
+  history.pushState({ mailbox: mailbox }, "", `./#${mailbox}`);
+
+  //Popstate pop states out of the stack
+  window.addEventListener("popstate", (e) => {
+        load_mailbox(e.state.mailbox); //Popstate
+    }
+  ```
+
 
 ### Continued development
 
-Use this section to outline areas that you want to continue focusing on in future projects. These could be concepts you're still not completely comfortable with or techniques you found useful that you want to refine and perfect.
+I am using this section to outline areas that I want to continue focusing on in future for this project. 
 
-**Note: Delete this note and the content within this section and replace with your own plans for continued development.**
+**Tasks To Do**
+- [ ] Loading Spinners
+- [ ] ML model to detect spam mails
+- [ ] Pagination + Infinite Scroll 
+- [ ] Code Refactoring
+
+
 
 ### Useful resources
+- [Q object docs](https://docs.djangoproject.com/en/4.0/topics/db/queries/#complex-lookups-with-q-objects) - This is the django doc i reffered for understanding Q objects.
+- [History Api](https://medium.com/@george.norberg/history-api-getting-started-36bfc82ddefc) - This is an amazing article which helped me finally understand History Api. I'd recommend it to anyone still learning this concept.
 
-- [Example resource 1](https://www.example.com) - This helped me for XYZ reason. I really liked this pattern and will use it going forward.
-- [Example resource 2](https://www.example.com) - This is an amazing article which helped me finally understand XYZ. I'd recommend it to anyone still learning this concept.
-
-**Note: Delete this note and replace the list above with resources that helped you during the challenge. These could come in handy for anyone viewing your solution or for yourself when you look back on this project in the future.**
 
 ## Author
 
-- Website - [Hussain Shaikh](https://www.your-site.com)
-- Frontend Mentor - [@yourusername](https://www.frontendmentor.io/profile/yourusername)
-- Twitter - [@yourusername](https://www.twitter.com/yourusername)
+- Profile - [Hussain Shaikh](https://www.linkedin.com/in/hussainshk/)
+- Twitter - [@HussainSk2001](https://twitter.com/HussainSk2001)
 
-**Note: Delete this note and add/remove/edit lines above based on what links you'd like to share.**
 
 ## Acknowledgments
 
-This is where you can give a hat tip to anyone who helped you out on this project. Perhaps you worked in a team or got some inspiration from someone else's solution. This is the perfect place to give them some credit.
+- **[CS50](https://cs50.harvard.edu/web/2020) and [Brian Yu](https://brianyu.me/)** - I am absolutely thankfull to them as they enabled me to learn such amazing concepts free of cost and gave me an headstart in web development. I would recommend it anybody who wants to become a web dev.
+- **[Kevin Powell](https://www.youtube.com/kepowob)** - His course [conquering responsive layouts](https://courses.kevinpowell.co/conquering-responsive-layouts) gave me the weapons to tackle one of the toughest things in web development, CSS!!.
 
-**Note: Delete this note and edit this section's content as necessary. If you completed this challenge by yourself, feel free to delete this section entirely.**
