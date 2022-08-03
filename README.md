@@ -11,7 +11,7 @@
 </div>
 
 
-[![Multi-device](/images/multi-device.png)](https://cs50gmail.herokuapp.com/)
+[![Multi-device](/images/multi-device.png)](https://www.youtube.com/embed/ZYKOReUFKtE)
 
 A single-page-app email client that makes API calls to send and receive emails with  front-end similar to Gmail. 
 
@@ -28,6 +28,7 @@ A single-page-app email client that makes API calls to send and receive emails w
     - [Built with](#built-with)
     - [What I learned](#what-i-learned)
     - [Continued development](#continued-development)
+    - [Achievements](#achievements)
     - [Useful resources](#useful-resources)
   - [Author](#author)
   - [Acknowledgments](#acknowledgments)
@@ -35,8 +36,6 @@ A single-page-app email client that makes API calls to send and receive emails w
 
 
 ## Overview
-<iframe width="560" height="315" src="https://www.youtube.com/embed/ZYKOReUFKtE" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-</iframe>
 
 ### Features
 
@@ -149,7 +148,9 @@ I am using this section to outline areas that I want to continue focusing on in 
 - [ ] Pagination + Infinite Scroll 
 - [ ] Code Refactoring
 
-
+### Achievements
+- My teacher and CSS Expert kevin powell by whom i learned responsive design praised my the design of my gmail clone and he loved it.
+- [Link to the video](https://youtu.be/3FU-pY5BzKs)
 
 ### Useful resources
 - [Q object docs](https://docs.djangoproject.com/en/4.0/topics/db/queries/#complex-lookups-with-q-objects) - This is the django doc i reffered for understanding Q objects.
