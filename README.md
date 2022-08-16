@@ -143,13 +143,13 @@ I am using this section to recap over some of my major learnings while working t
 I am using this section to outline areas that I want to continue focusing on in future for this project. 
 
 **Tasks To Do**
-- [ ] Loading Spinners
+- [X] Loading Spinners
 - [ ] ML model to detect spam mails
 - [ ] Pagination + Infinite Scroll 
 - [ ] Code Refactoring
 
 ### Achievements
-- My teacher and CSS Expert kevin powell by whom i learned responsive design praised my the design of my gmail clone and he loved it.
+- My teacher and CSS Expert kevin powell by whom I learned responsive design reviewed the design of my gmail clone and he loved it.
 - [Link to the video](https://youtu.be/3FU-pY5BzKs)
 
 ### Useful resources

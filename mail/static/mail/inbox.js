@@ -239,11 +239,19 @@ function load_mailbox(mailbox, query = "") {
 
   // Show the mailbox name
   // console.log(mailbox);
+  spinner = `
+  <div class="d-flex justify-content-center spin my-5">
+    <div class="spinner-border text-danger" role="status">
+      <span class="sr-only">Loading...</span>
+    </div>
+  </div>`;
+
   document.querySelector(
     "#emails-view"
   ).innerHTML = `<h4 class="mailbox_head py-2 pl-3 m-0 mx-1">${
     mailbox.charAt(0).toUpperCase() + mailbox.slice(1)
-  }</h4>`;
+  }</h4> ${spinner}`;
+
   // console.log(mailbox);
   if (mailbox === "search") {
     mailbox = `search/${query}`;
@@ -251,6 +259,7 @@ function load_mailbox(mailbox, query = "") {
   fetch(`/emails/${mailbox}`)
     .then((response) => response.json())
     .then((emails) => {
+      $(".spin").removeClass("d-flex").addClass("d-none");
       // Print emails
       // console.log(emails);
       if (emails.error) {
