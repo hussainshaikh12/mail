@@ -4,7 +4,7 @@
 
 # Gmail Clone
 
-  [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/embed/ZYKOReUFKtE)  [![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)](https://cs50gmail.herokuapp.com)
+  [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://www.youtube.com/embed/ZYKOReUFKtE)  [![Render](https://img.shields.io/badge/Render-%46E3B7.svg?style=for-the-badge&logo=render&logoColor=white)](https://gmail-b32w.onrender.com)
 
 
 
@@ -20,6 +20,9 @@ A single-page-app email client that makes API calls to send and receive emails w
 
 - [Gmail Clone](#gmail-clone)
   - [Table of contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
   - [Overview](#overview)
     - [Features](#features)
     - [Screenshot](#screenshot)
@@ -34,7 +37,36 @@ A single-page-app email client that makes API calls to send and receive emails w
   - [Acknowledgments](#acknowledgments)
 
 
+## Getting Started
 
+### Prerequisites
+After cloning the repo you need to create a Virtual environment and activate it.
+
+First install virtualenv package 
+
+```bash
+pip install virtualenv
+```
+Open cli in the folder of the cloned repo and then create env
+```bash
+virtualenv env
+```
+To activate the env (For windows, For other OS you can easily google)
+```bash
+env\Scripts\activate
+```
+
+### Installation
+Install the dependencies from the requirements.txt file
+```bash
+cd mail
+pip install -r requirements.txt
+```
+Start the django server
+```bash
+python manage.py runserver
+```
+Now you can access the project at http://127.0.0.1:8000
 ## Overview
 
 ### Features
@@ -57,7 +89,7 @@ A single-page-app email client that makes API calls to send and receive emails w
 
 ### Links
 
-- Live Site URL: [Deployed on Heroku](https://cs50gmail.herokuapp.com/)
+- Live Site URL: [Deployed on Render](https://gmail-b32w.onrender.com)
 
 ## My process
 
